@@ -46,24 +46,24 @@ def main():
     )
     
     D = [
-        ( ClassicOptimizer, {"learning_rate":1}, BASE_DIR + "classical/"),
-        ( AdaptiveLearningRateOptimizer, {"initial_learning_rate":1}, BASE_DIR + "adaptive/"),
-        ( MomentumOptimizer, {"learning_rate":1, "momentum":0.5}, BASE_DIR + "momentum/"),
-        ( FracOptimizer, {"learning_rate":1}, BASE_DIR + "frac/"),
-        ( FracOptimizer, {"learning_rate":1,"beta":0.1}, BASE_DIR + "fracB01/"),
-        ( FracOptimizer, {"learning_rate":1,"beta":0.01}, BASE_DIR + "fracB001/"),
-        ( FracOptimizer, {"learning_rate":1,"beta":0.001}, BASE_DIR + "fracB0001/"),
-        ( FracOptimizer, {"learning_rate":1,"beta":10}, BASE_DIR + "fracB10/"),
-        ( FracOptimizer, {"learning_rate":1,"beta":0.5}, BASE_DIR + "fracB05/"),
-        ( FracAdap, {"learning_rate":1,"beta":0.5}, BASE_DIR + "fracAdapB05/"),
-        ( Frac3Optimizer, {"learning_rate":1,"beta":0.5}, BASE_DIR + "frac3B05/"),
-        ( Frac3Optimizer, {"learning_rate":1,"beta":0.05}, BASE_DIR + "frac3B005/"),
-        ( Frac3Optimizer, {"learning_rate":1,"beta":0.005}, BASE_DIR + "frac3B0005/"),
-        ( Frac3Optimizer, {"learning_rate":1,"beta":5}, BASE_DIR + "frac3B5/"),
-        ( FracOptimizer2, {"learning_rate":1}, BASE_DIR + "frac2/"),
-        ( FracOptimizer2, {"learning_rate":1,"beta":0}, BASE_DIR + "frac2B0/"),
-        ( FracOptimizer2, {"learning_rate":1,"beta":0.1}, BASE_DIR + "frac2B01/"),
-        ( FracOptimizer2, {"learning_rate":1,"beta":5}, BASE_DIR + "frac2B5/"),
+        ( ClassicOptimizer, {"learning_rate":1}, BASE_DIR + "classical/" , "Gradient Descent"),
+        ( AdaptiveLearningRateOptimizer, {"initial_learning_rate":1}, BASE_DIR + "adaptive/" , "Adaptive Learning Rate"),
+        # ( MomentumOptimizer, {"learning_rate":1, "momentum":0.5}, BASE_DIR + "momentum/"),
+        # ( FracOptimizer, {"learning_rate":1}, BASE_DIR + "frac/"),
+        # ( FracOptimizer, {"learning_rate":1,"beta":0.1}, BASE_DIR + "fracB01/"),
+        # ( FracOptimizer, {"learning_rate":1,"beta":0.01}, BASE_DIR + "fracB001/"),
+        # ( FracOptimizer, {"learning_rate":1,"beta":0.001}, BASE_DIR + "fracB0001/"),
+        # ( FracOptimizer, {"learning_rate":1,"beta":10}, BASE_DIR + "fracB10/"),
+        ( FracOptimizer, {"learning_rate":1,"beta":0.5}, BASE_DIR + "fracB05/" , "Fractional Gradient Descent"),
+        ( FracAdap, {"learning_rate":1,"beta":0.5}, BASE_DIR + "fracAdapB05/", "Fractional Gradient Descent with Adaptive Learning Rate"),
+        ( Frac3Optimizer, {"learning_rate":1,"beta":0.5}, BASE_DIR + "frac3B05/" , "Fractional Gradient Descent V3"),
+        # ( Frac3Optimizer, {"learning_rate":1,"beta":0.05}, BASE_DIR + "frac3B005/"),
+        # ( Frac3Optimizer, {"learning_rate":1,"beta":0.005}, BASE_DIR + "frac3B0005/"),
+        # ( Frac3Optimizer, {"learning_rate":1,"beta":5}, BASE_DIR + "frac3B5/"),
+        # ( FracOptimizer2, {"learning_rate":1}, BASE_DIR + "frac2/"),
+        # ( FracOptimizer2, {"learning_rate":1,"beta":0}, BASE_DIR + "frac2B0/"),
+        # ( FracOptimizer2, {"learning_rate":1,"beta":0.1}, BASE_DIR + "frac2B01/"),
+        # ( FracOptimizer2, {"learning_rate":1,"beta":5}, BASE_DIR + "frac2B5/"),
         # ( FracTrue, {"beta":0.5,"verbose":True}, BASE_DIR + "fracTrue/"),
         # ( AdamOptimizer, {"learning_rate":1}, BASE_DIR + "adam/")
     ]
@@ -73,7 +73,7 @@ def main():
         p.run(epochs=NUM_EPOCHS,verbose=VERBOSE)
     
     with ThreadPoolExecutor(max_workers=8) as executor:
-        futures = [executor.submit(run_pipeline, Optimizer,params,output) for Optimizer,params,output in D]
+        futures = [executor.submit(run_pipeline, Optimizer,params,output) for Optimizer,params,output,_ in D]
         for future in futures:
             future.result()
     
@@ -84,10 +84,10 @@ def main():
     plt.title("Cost function using Gradient Descent")
     plt.tight_layout()
     y_heigth = 100
-    S = 20
-    for Optimizer , _ , output in D:
+    S = 100
+    for Optimizer , _ , output,name in D:
         history = json.load(open(output + "history.json"))
-        name = output.split("/")[-2]
+        # name = output.split("/")[-2]
         plt.plot(history["cost"], label=name)
         if history["cost"][S] < y_heigth:
             y_heigth = history["cost"][S]
@@ -103,9 +103,9 @@ def main():
     plt.tight_layout()
     y_heigth = 0
     S = 20
-    for Optimizer , _ , output in D:
+    for Optimizer , _ , output,name in D:
         history = json.load(open(output + "history.json"))
-        name = output.split("/")[-2]
+        # name = output.split("/")[-2]
         plt.plot(history["time"], history["cost"], label=name)
         if history["cost"][S] > y_heigth:
             y_heigth = history["cost"][S]
