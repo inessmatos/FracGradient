@@ -110,7 +110,10 @@ class BinaryCrossEntropy:
         self.activation_gradient = activation_gradient
         self.regularization = regularization
     
-    def cost(self,A: list[np.ndarray], weigths: list[np.ndarray], y: np.ndarray) -> float:      
+    def cost(self, A_: list[np.ndarray], weights: list[np.ndarray], y: np.ndarray) -> float:
+        epsilon = 1e-8
+        A = np.clip(A_[-1], epsilon, 1 - epsilon)
+        return -np.mean(y * np.log(A) + (1 - y) * np.log(1 - A))
         """
         Compute the cost for the binary cross entropy loss function.
         

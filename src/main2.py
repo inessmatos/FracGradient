@@ -9,11 +9,15 @@ import json
 from pathlib import Path
 import h5py
 from numpy import ndarray
+from impl.Activations import relu, sigmoid
 
-DATASET_PATH = "FracGradient/datasets/Happy_datasets/datasets/"
-BASE_DIR = "FracGradient/results/output_HappyFace/"
+
+DATASET_PATH = "datasets/Happy_datasets/datasets"
+#BASE_DIR = "FracGradient/results/output_HappyFace/"
+BASE_DIR = "FracGradient/results/output_HappyFace_relu/"
 NUM_EPOCHS = 3000
 VERBOSE = True
+activations=[relu, sigmoid]
 
 def one_hot(y):
     one_hot = np.zeros((y.shape[0], y.max() + 1))
@@ -65,6 +69,8 @@ def load_dataset():
 def main():
     # Load dataset
     X, y, X_test, y_test, labels = load_dataset()
+    X = X / 255.0
+    X_test = X_test / 255.0
 
     p_gen = lambda Optimizer,params,output: Pipeline(
         X, 
@@ -76,7 +82,8 @@ def main():
             BinaryCrossEntropy(
                 regularization=L2Regularization(0.2)
             ), 
-            Optimizer(**params)
+            Optimizer(**params),
+            activations=[relu, sigmoid]
         ),
         output,
         X_test=X_test,
@@ -155,4 +162,4 @@ def main():
     
 if __name__ == "__main__":
     main()    
-    
+

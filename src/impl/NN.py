@@ -1,5 +1,7 @@
 import numpy as np
-from impl.CostFunctions import sigmoid , BinaryCrossEntropy
+# from impl.CostFunctions import sigmoid , BinaryCrossEntropy
+from impl.Activations import sigmoid, relu
+from impl.CostFunctions import BinaryCrossEntropy
 from impl.Optimizers import ClassicOptimizer
 
 def randInitializeWeights(L_in: int, L_out:int) -> np.ndarray:
@@ -74,14 +76,23 @@ class NeuralNetwork:
     fit(X: np.ndarray, y: np.ndarray, epochs: int = 100, verbose: bool = False)
         Trains the neural network using the provided input data and target output data for a specified number of epochs.
     """
-    def __init__(self, layers: list[int] , input_size: int , output_size: int, cost_function: BinaryCrossEntropy, optimizer: ClassicOptimizer):
+    #def __init__(self, layers: list[int] , input_size: int , output_size: int, cost_function: BinaryCrossEntropy, optimizer: ClassicOptimizer):
+     #  self.input_size = input_size
+     #   self.output_size = output_size
+     #   self.cost_function = cost_function
+     #   self.optimizer = optimizer
+     #   self.weights = self.initialize_weights(layers)
+     #  self.optimizer.parent = self # type: ignore
+
+    def __init__(self, layers, input_size, output_size, cost_function, optimizer, activations=None):
         self.layers = layers
         self.input_size = input_size
         self.output_size = output_size
         self.cost_function = cost_function
         self.optimizer = optimizer
+        self.activations = activations if activations else [sigmoid] * (len(layers) + 1)
         self.weights = self.initialize_weights(layers)
-        self.optimizer.parent = self # type: ignore
+        self.optimizer.parent = self  # type: ignore
     
     def initialize_weights(self, layers: list[int]) -> list[np.ndarray]:
         """
@@ -128,7 +139,8 @@ class NeuralNetwork:
             Z = A_[-1] @ self.weights[i].T
             if i < len(self.layers):
                 Z = np.hstack((np.ones((Z.shape[0], 1)), Z))
-            A = sigmoid(Z)
+           # A = sigmoid(Z)
+            A = self.activations[i](Z)
             A_.append(A)
             Z_.append(Z)
         return A_, Z_
@@ -158,7 +170,8 @@ class NeuralNetwork:
             Z = A_[-1] @ weights[i].T
             if i < len(self.layers):
                 Z = np.hstack((np.ones((Z.shape[0], 1)), Z))
-            A = sigmoid(Z)
+            # A = sigmoid(Z)
+            A = self.activations[i](Z)
             A_.append(A)
             Z_.append(Z)
         return A_, Z_
@@ -182,7 +195,8 @@ class NeuralNetwork:
         for i in range(len(self.layers)+1):
             A = np.hstack((np.ones((A.shape[0], 1)), A))
             Z = A @ self.weights[i].T
-            A = sigmoid(Z)
+           # A = sigmoid(Z)
+            A = self.activations[i](Z)
         return A
     
     def fit(self, X: np.ndarray, y: np.ndarray, epochs: int=100, verbose: bool=False):
@@ -210,3 +224,5 @@ class NeuralNetwork:
             cost = self.cost_function.cost(A_, self.weights,y)
             grads = self.cost_function.gradient(A_,Z_, self.weights, y)
             self.optimizer.step(self.weights, grads, cost)
+
+            
