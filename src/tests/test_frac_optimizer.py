@@ -58,3 +58,42 @@ plt.legend()
 plt.grid()
 plt.show()
 
+# Criar modelo igual
+model_sgd = Sequential([
+    Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)),
+    MaxPooling2D(),
+    Conv2D(64, (3, 3), activation='relu'),
+    MaxPooling2D(),
+    Flatten(),
+    Dense(64, activation='relu'),
+    Dense(10, activation='softmax')
+])
+
+model_adam = Sequential([
+    Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)),
+    MaxPooling2D(),
+    Conv2D(64, (3, 3), activation='relu'),
+    MaxPooling2D(),
+    Flatten(),
+    Dense(64, activation='relu'),
+    Dense(10, activation='softmax')
+])
+
+model_sgd.compile(optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
+history_sgd = model_sgd.fit(x_train, y_train, epochs=10, batch_size=128, validation_split=0.1)
+
+model_adam.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+history_adam = model_adam.fit(x_train, y_train, epochs=10, batch_size=128, validation_split=0.1)
+
+
+plt.figure(figsize=(8,5))
+plt.plot(history_sgd.history['val_loss'], label='SGD')
+plt.plot(history_adam.history['val_loss'], label='Adam')
+plt.plot(history.history['val_loss'], label='FracOptimizer')
+plt.title('Cost function in validation (CIFAR-10)')
+plt.xlabel('Épochs')
+plt.ylabel('Loss')
+plt.legend()
+plt.grid(True)
+plt.savefig('figura4_loss_comparacao_cifar10.png')
+plt.show()
